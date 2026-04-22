@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApiState } from "../store/useStore";
 import compareJson from "../utils/compareJson";
+import { getAiExplanation } from "../services/api";
 
 function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
@@ -16,6 +17,9 @@ function JsonInput() {
 	const setIssues = useApiState((state) => state.setIssues);
 	const setError = useApiState((state) => state.setError);
 
+	// set ai explanation
+	const setAiExplanation = useApiState((state) => state.setAiExplanation);
+
 	const apiTabs = ["Request", "Response"]; // for displaying which api input textarea to show 
 
 	function handleOnChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -26,7 +30,7 @@ function JsonInput() {
 		}
 	}
 
-	function handleAnalyze() {
+	async function handleAnalyze() {
 		console.log("requestJson", requestJson);
 		console.log("responseJson", responseJson);
 		try {
@@ -42,6 +46,8 @@ function JsonInput() {
 				const issues = compareJson(request, response, "");
 				console.log("issues", issues);
 				setIssues(issues);
+				const explanation = await getAiExplanation(issues);
+				if (explanation) setAiExplanation(explanation);
 			}
 			return null;
 		} catch (err) {
