@@ -35,6 +35,14 @@ function JsonInput() {
 		}
 	}
 
+	function clearTextArea() {
+		if (activeTextArea === "Request") {
+			setRequest("");
+		} else if (activeTextArea === "Response") {
+			setResponse("");
+		}
+	}
+
 	function setMode(mode: string) {
 		setSourceOfTruth(mode);
 	}
@@ -158,9 +166,12 @@ function JsonInput() {
 					>
 						Analyze
 					</button>
-					<button className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]">
+					<button
+						onClick={clearTextArea}
+						className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]"
+					>
 						<span className=" flex flex-row items-center justify-center-safe gap-2">
-							<Trash2 className="w-5 h-5" />{" "}
+							<Trash2 className="w-5 h-5" />
 							<span className="hidden min-[450px]:inline">Clear</span>
 						</span>
 					</button>
