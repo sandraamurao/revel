@@ -71,7 +71,10 @@ function JsonInput() {
 
 	return (
 		<>
-			<div id="api-input-container" className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 ">
+			<div
+				id="api-input-container"
+				className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 "
+			>
 				<div
 					id="api-input-header"
 					className="flex flex-row justify-between mb-4"
@@ -79,7 +82,10 @@ function JsonInput() {
 					<h1> API Input </h1>
 					<div> Load example </div>
 				</div>
-				<div id="api-btn-container" className="flex flex-row max-[400px]:flex-col gap-6 max-[400px]:gap-4 mb-5">
+				<div
+					id="api-btn-container"
+					className="flex flex-row max-[400px]:flex-col gap-6 max-[400px]:gap-4 mb-5"
+				>
 					{apiLabels.map((filter) => (
 						<button
 							key={filter}
@@ -146,11 +152,18 @@ function JsonInput() {
 				</div>
 
 				<div id="btns-container" className="flex flex-row gap-6">
-					<button className="flex-2 rounded-lg pt-2 pb-2 bg-[#4d379c] hover:bg-[#5857a5]" onClick={handleAnalyze}>
+					<button
+						className="flex-2 rounded-lg pt-2 pb-2 bg-[#4d379c] hover:bg-[#5857a5]"
+						onClick={handleAnalyze}
+					>
 						Analyze
 					</button>
-					<button className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]"> 
-						<span className=" flex flex-row items-center justify-center-safe gap-2"><Trash2 className="w-5 h-5" /> Clear  </span></button>
+					<button className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]">
+						<span className=" flex flex-row items-center justify-center-safe gap-2">
+							<Trash2 className="w-5 h-5" />{" "}
+							<span className="hidden min-[450px]:inline">Clear</span>
+						</span>
+					</button>
 				</div>
 			</div>
 		</>
