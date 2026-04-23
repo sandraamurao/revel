@@ -6,87 +6,87 @@ export interface Issue {
 }
 
 function compareJson(
-	request: Record<string, unknown>,
-	response: Record<string, unknown>,
+	expectedApiInput: Record<string, unknown>,
+	actualApiInput: Record<string, unknown>,
 	path: string = "",
 ): Issue[] {
 	const issues: Issue[] = [];
 
-	for (const key of Object.keys(request)) {
+	for (const key of Object.keys(expectedApiInput)) {
 		const fullPath = path ? `${path}.${key}` : key;
 
-		const reqVal = request[key];
-		const resVal = response[key];
+		const expVal = expectedApiInput[key];
+		const actVal = actualApiInput[key];
 
 		// Missing in response
-		if (!(key in response)) {
+		if (!(key in actualApiInput)) {
 			// If the key doesn't exist in response
 			issues.push({
 				field: fullPath,
 				issue: "Missing field",
-				expected: JSON.stringify(reqVal),
-				actual: "undefined",
+				expected: fullPath,
+				actual: "undefined/missing",
 			});
 			continue;
 		}
 
 		// Type mismatch
-		const reqType = typeof reqVal;
-		const resType = typeof resVal;
+		const expType = typeof expVal;
+		const actType = typeof actVal;
 
-		if (reqType !== resType) {
+		if (expType !== actType) {
 			issues.push({
 				field: fullPath,
 				issue: "Type mismatch",
-				expected: reqType,
-				actual: resType,
+				expected: expType,
+				actual: actType,
 			});
 		}
 
 		// Recurse for objects
 		if (
-			reqType &&
-			reqVal &&
-			typeof reqVal === "object" &&
-			typeof resVal === "object" &&
-			!Array.isArray(reqVal) &&
-			!Array.isArray(resVal)
+			expType &&
+			expVal &&
+			typeof expVal === "object" &&
+			typeof actVal === "object" &&
+			!Array.isArray(expVal) &&
+			!Array.isArray(actVal)
 		) {
 			// If both values are plain objects (not arrays), call compareJson again on those nested objects
 			issues.push(
 				...compareJson(
-					reqVal as Record<string, unknown>,
-					resVal as Record<string, unknown>,
+					expVal as Record<string, unknown>,
+					actVal as Record<string, unknown>,
 					fullPath,
 				),
 			);
 		}
 
 		// Array handling
-		if (Array.isArray(reqVal)) {
-			if (!Array.isArray(resVal)) {
+		if (Array.isArray(expVal)) {
+			if (!Array.isArray(actVal)) {
 				issues.push({
 					field: fullPath,
 					issue: "Type mismatch",
 					expected: "array",
-					actual: typeof resVal,
+					actual: typeof actVal,
 				});
 				continue;
 			}
 
-			reqVal.forEach((reqElement, i) => {
-				if (resVal[i] === undefined) {
+			expVal.forEach((expElement, i) => {
+				if (actVal[i] === undefined) {
 					issues.push({
 						field: `${fullPath}[${i}]`,
 						issue: "Missing field",
-						expected: JSON.stringify(reqElement),
-						actual: "undefined",
+						expected: JSON.stringify(expElement),
+						actual: "undefined/missing",
 					});
 				} else {
 					issues.push(
 						...compareJson(
-							reqElement as Record<string, unknown>,
-							resVal[i] as Record<string, unknown>,
+							expElement as Record<string, unknown>,
+							actVal[i] as Record<string, unknown>,
 							`${fullPath}[${i}]`,
 						),
 					);

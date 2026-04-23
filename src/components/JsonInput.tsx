@@ -7,12 +7,16 @@ function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
 
 	// Set api states
+	// set comparison mode
+	const setSourceOfTruth = useApiState((state) => state.setSourceOfTruth);
+	const sourceOfTruth = useApiState((state) => state.sourceOfTruth);
+
 	// request and response
 	const setRequest = useApiState((state) => state.setRequest);
 	const setResponse = useApiState((state) => state.setResponse);
 	const requestJson = useApiState((state) => state.requestJson);
 	const responseJson = useApiState((state) => state.responseJson);
-	
+
 	// set issues and error from api comparisons as states
 	const setIssues = useApiState((state) => state.setIssues);
 	const setError = useApiState((state) => state.setError);
@@ -20,7 +24,7 @@ function JsonInput() {
 	// set ai explanation
 	const setAiExplanation = useApiState((state) => state.setAiExplanation);
 
-	const apiTabs = ["Request", "Response"]; // for displaying which api input textarea to show 
+	const apiLabels = ["Request", "Response"]; // for displaying which api input textarea to show
 
 	function handleOnChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
 		if (activeTextArea == "Request") {
@@ -28,6 +32,10 @@ function JsonInput() {
 		} else {
 			setResponse(e.target.value);
 		}
+	}
+
+	function setMode(mode: string) {
+		setSourceOfTruth(mode);
 	}
 
 	async function handleAnalyze() {
@@ -43,10 +51,16 @@ function JsonInput() {
 				typeof response === "object" &&
 				response !== null
 			) {
-				const issues = compareJson(request, response, "");
+				const issues =
+					sourceOfTruth === "Request"
+						? compareJson(request, response, "")
+						: compareJson(response, request, "");
 				console.log("issues", issues);
 				setIssues(issues);
-				const explanation = await getAiExplanation(issues);
+				const explanation =
+					sourceOfTruth === "Request"
+						? await getAiExplanation(issues, request, response, sourceOfTruth)
+						: await getAiExplanation(issues, response, request, sourceOfTruth);
 				if (explanation) setAiExplanation(explanation);
 			}
 			return null;
@@ -67,7 +81,7 @@ function JsonInput() {
 					<div> Load example </div>
 				</div>
 				<div id="api-btn-container" className="flex flex-row gap-7 mb-2">
-					{apiTabs.map((filter) => (
+					{apiLabels.map((filter) => (
 						<button
 							key={filter}
 							onClick={() => setActiveTextArea(filter)}
@@ -86,7 +100,9 @@ function JsonInput() {
 							placeholder='{ "userId": 123, "data": {...} }'
 							className="w-full p-3 border border-[#474747] focus:border-blue-500 outline-none"
 							value={requestJson}
-						> </textarea>
+						>
+							{" "}
+						</textarea>
 					)}
 				</div>
 
@@ -98,8 +114,36 @@ function JsonInput() {
 							placeholder='{ "user_id": 123, "action": "fetch_data" }'
 							className="w-full p-3 border border-[#474747] focus:border-blue-500 outline-none"
 							value={responseJson}
-						> </textarea>
+						>
+							{" "}
+						</textarea>
 					)}
+				</div>
+
+				<div>
+					<div className="relative inline-flex items-start">
+						<span>Source of truth:</span>
+						<div className="relative group ml-1 -mt-1">
+							<span className="cursor-pointer text-gray-400 text-xs">?</span>
+							<div className="absolute hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 left-0 top-4">
+								Choose which side is the expected object format to follow.
+							</div>
+						</div>
+					</div>
+					<div className="flex flex-row items-center gap-4">
+						{apiLabels.map((filter) => (
+							<button
+								key={filter}
+								onClick={() => setMode(filter)}
+								className={`border  rounded-[7px] p-1.5 ${sourceOfTruth === filter ? "border border-[#088f25] bg-[#41aa57]/25" : "border-transparent"}`}
+							>
+								<div className=" flex flex-row items-center gap-2">
+									{filter}
+									{sourceOfTruth === filter && <div> ✅ </div>} {""}
+								</div>
+							</button>
+						))}
+					</div>
 				</div>
 
 				<div id="btns-container" className="flex flex-row gap-6">
