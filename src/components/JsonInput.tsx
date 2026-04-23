@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApiState } from "../store/useStore";
 import compareJson from "../utils/compareJson";
 import { getAiExplanation } from "../services/api";
+import { Trash2 } from "lucide-react";
 
 function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
@@ -39,8 +40,6 @@ function JsonInput() {
 	}
 
 	async function handleAnalyze() {
-		console.log("requestJson", requestJson);
-		console.log("responseJson", responseJson);
 		try {
 			const request = JSON.parse(requestJson);
 			const response = JSON.parse(responseJson);
@@ -55,24 +54,24 @@ function JsonInput() {
 					sourceOfTruth === "Request"
 						? compareJson(request, response, "")
 						: compareJson(response, request, "");
-				console.log("issues", issues);
 				setIssues(issues);
+
 				const explanation =
 					sourceOfTruth === "Request"
 						? await getAiExplanation(issues, request, response, sourceOfTruth)
 						: await getAiExplanation(issues, response, request, sourceOfTruth);
+
 				if (explanation) setAiExplanation(explanation);
 			}
 			return null;
 		} catch (err) {
-			console.log("error: ", err);
 			setError("Invalid JSON");
 		}
 	}
 
 	return (
 		<>
-			<div id="api-input-container" className="border border-[#474747] p-5">
+			<div id="api-input-container" className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 ">
 				<div
 					id="api-input-header"
 					className="flex flex-row justify-between mb-4"
@@ -80,12 +79,12 @@ function JsonInput() {
 					<h1> API Input </h1>
 					<div> Load example </div>
 				</div>
-				<div id="api-btn-container" className="flex flex-row gap-7 mb-2">
+				<div id="api-btn-container" className="flex flex-row max-[400px]:flex-col gap-6 max-[400px]:gap-4 mb-5">
 					{apiLabels.map((filter) => (
 						<button
 							key={filter}
 							onClick={() => setActiveTextArea(filter)}
-							className={`border border-transparent rounded-[7px] p-1.5 ${activeTextArea === filter ? "bg-[#6f379c]" : ""}`}
+							className={`border border-transparent rounded-[7px] pl-3 pr-3 pt-1.5 pb-1.5 ${activeTextArea === filter ? "bg-[#4d379c]" : ""} hover:bg-[#1e2ba0]/35 hover:border-[#4d379c] `}
 						>
 							{filter}
 						</button>
@@ -98,7 +97,7 @@ function JsonInput() {
 							onChange={handleOnChange}
 							name="request"
 							placeholder='{ "userId": 123, "data": {...} }'
-							className="w-full p-3 border border-[#474747] focus:border-blue-500 outline-none"
+							className="w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
 							value={requestJson}
 						>
 							{" "}
@@ -112,7 +111,7 @@ function JsonInput() {
 							onChange={handleOnChange}
 							name="response"
 							placeholder='{ "user_id": 123, "action": "fetch_data" }'
-							className="w-full p-3 border border-[#474747] focus:border-blue-500 outline-none"
+							className="w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
 							value={responseJson}
 						>
 							{" "}
@@ -124,22 +123,22 @@ function JsonInput() {
 					<div className="relative inline-flex items-start">
 						<span>Source of truth:</span>
 						<div className="relative group ml-1 -mt-1">
-							<span className="cursor-pointer text-gray-400 text-xs">?</span>
+							<span className="cursor-pointer text-gray-400 text-s">?</span>
 							<div className="absolute hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 left-0 top-4">
 								Choose which side is the expected object format to follow.
 							</div>
 						</div>
 					</div>
-					<div className="flex flex-row items-center gap-4">
+					<div className="flex flex-row items-center gap-4 max-[400px]:flex-col max-[400px]:gap-2 mb-5 mt-2">
 						{apiLabels.map((filter) => (
 							<button
 								key={filter}
 								onClick={() => setMode(filter)}
-								className={`border  rounded-[7px] p-1.5 ${sourceOfTruth === filter ? "border border-[#088f25] bg-[#41aa57]/25" : "border-transparent"}`}
+								className={`border rounded-[7px] pt-1.5 pb-1.5 pl-3 pr-3 ${sourceOfTruth === filter ? "border border-[#088f25] bg-[#41aa57]/25" : "border-transparent"} hover:bg-[#2e663a]/20 hover:border-[#21532c]`}
 							>
 								<div className=" flex flex-row items-center gap-2">
+									{sourceOfTruth === filter && <div> ✅ </div>}
 									{filter}
-									{sourceOfTruth === filter && <div> ✅ </div>} {""}
 								</div>
 							</button>
 						))}
@@ -147,11 +146,11 @@ function JsonInput() {
 				</div>
 
 				<div id="btns-container" className="flex flex-row gap-6">
-					<button className="flex-2 border" onClick={handleAnalyze}>
-						{" "}
-						Analyze{" "}
+					<button className="flex-2 rounded-lg pt-2 pb-2 bg-[#4d379c] hover:bg-[#5857a5]" onClick={handleAnalyze}>
+						Analyze
 					</button>
-					<button className="flex-1 border"> Clear </button>
+					<button className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]"> 
+						<span className=" flex flex-row items-center justify-center-safe gap-2"><Trash2 className="w-5 h-5" /> Clear  </span></button>
 				</div>
 			</div>
 		</>
