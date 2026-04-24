@@ -6,7 +6,7 @@ function AnalysisPanel() {
 
 	return (
 		<>
-		<div> 
+		<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 "> 
 			<h1> Analysis </h1>
 
 			{error != "" && <div> {error} </div>}

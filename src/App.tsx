@@ -7,6 +7,7 @@ import AIExplanationPanel from "./components/AIExplanationPanel";
 
 function App() {
 	const issues = useApiState((state) => state.issues);
+	const aiExplanation = useApiState((state) => state.aiExplanation);
 
 	return (
 		<>
@@ -15,8 +16,8 @@ function App() {
 			<div className="grid md:grid-cols-2 gap-8 m-8">
 				<JsonInput></JsonInput>
 				<AnalysisPanel></AnalysisPanel>
-				{issues && (
-					<div>
+				{issues && aiExplanation && (
+					<div className="col-span-2 ">
 						<AIExplanationPanel></AIExplanationPanel>
 					</div>
 				)}
