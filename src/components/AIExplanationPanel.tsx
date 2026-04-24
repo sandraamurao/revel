@@ -6,12 +6,15 @@ function AIExplanationPanel() {
 
     return (
         <div>
-            <div> AI Explanation </div>
-            <div> 
-                {aiExplanation && 
-                    <ReactMarkdown>{aiExplanation}</ReactMarkdown>
-                }
-            </div>
+            {
+                aiExplanation && <div>
+                    <div> AI Explanation </div>
+                    <div>
+                        <ReactMarkdown>{aiExplanation}</ReactMarkdown>
+                    </div>
+                </div> 
+            }
+            
         </div>
     )
 }
