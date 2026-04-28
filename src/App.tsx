@@ -13,11 +13,11 @@ function App() {
 		<>
 			<NavBar></NavBar>
 
-			<div className="grid md:grid-cols-2 gap-8 m-8">
+			<div className="grid md:grid-cols-2 gap-8 m-8 max-[640px]:grid-cols-1">
 				<JsonInput></JsonInput>
 				<AnalysisPanel></AnalysisPanel>
 				{issues && aiExplanation && (
-					<div className="col-span-2 ">
+					<div className="md:col-span-2 w-full">
 						<AIExplanationPanel></AIExplanationPanel>
 					</div>
 				)}
