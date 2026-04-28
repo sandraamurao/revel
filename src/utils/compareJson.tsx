@@ -18,15 +18,32 @@ function compareJson(
 		const expVal = expectedApiInput[key];
 		const actVal = actualApiInput[key];
 
-		// Missing in response
+		// Missing in expected
 		if (!(key in actualApiInput)) {
-			// If the key doesn't exist in response
-			issues.push({
-				field: fullPath,
-				issue: "Missing field",
-				expected: fullPath,
-				actual: "undefined/missing",
-			});
+			const normalize = (k: string) => k.toLowerCase().replace(/_/g, "");
+
+			const similarKey = Object.keys(actualApiInput).find(
+				(k) => normalize(k) === normalize(key),
+			);
+
+			if (similarKey) {
+				// if mismatching field names
+				issues.push({
+					field: fullPath,
+					issue: "Naming mismatch",
+					expected: key, // e.g. "userId"
+					actual: similarKey, // e.g. "user_id"
+				});
+			} else {
+				// If the key doesn't exist in expected
+				issues.push({
+					field: fullPath,
+					issue: "Missing field",
+					expected: fullPath,
+					actual: "undefined/missing",
+				});
+			}
+
 			continue;
 		}
 
