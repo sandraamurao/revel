@@ -21,6 +21,7 @@ function JsonInput() {
 	// set issues and error from api comparisons as states
 	const setIssues = useApiState((state) => state.setIssues);
 	const setError = useApiState((state) => state.setError);
+	const issues = useApiState((state) => state.issues);
 
 	// set ai explanation
 	const setAiExplanation = useApiState((state) => state.setAiExplanation);
@@ -28,6 +29,12 @@ function JsonInput() {
 	const apiLabels = ["Request", "Response"]; // for displaying which api input textarea to show
 
 	function handleOnChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+		if (e.target.value === "" && issues.length > 0) {
+			setIssues([]);
+			setError("");
+			setAiExplanation("");
+		}
+
 		if (activeTextArea == "Request") {
 			setRequest(e.target.value);
 		} else {
@@ -38,8 +45,10 @@ function JsonInput() {
 	function clearTextArea() {
 		if (activeTextArea === "Request") {
 			setRequest("");
+			setIssues([]);
 		} else if (activeTextArea === "Response") {
 			setResponse("");
+			setIssues([]);
 		}
 	}
 
