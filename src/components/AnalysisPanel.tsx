@@ -70,7 +70,7 @@ function AnalysisPanel() {
 												</div>
 
 												<div>
-													Field exists in request but missing in
+													Field exists in {sourceOfTruth.toLowerCase()} but missing in
 													{sourceOfTruth === "Response" && <> request </>}
 													{sourceOfTruth === "Request" && <> response </>}
 												</div>
