@@ -24,7 +24,7 @@ function AnalysisPanel() {
 					<>
 						<h1> Analysis </h1>
 
-						<div className="mt-3 mb-3"> ⚠️ Detected Issues </div>
+						<div className="mt-3 mb-4"> ⚠️ Detected Issues </div>
 						<div>
 							{issues.map((issue, index) => (
 								<div key={index} className="mb-3">
@@ -32,14 +32,14 @@ function AnalysisPanel() {
 										<>
 											{" "}
 											<div
-												className={`flex flex-col border rounded-lg p-2 bg-[#1a1f31]`}
+												className={`flex flex-col border rounded-lg p-3 bg-[#1a1f31]`}
 												style={{
 													borderColor: issueConfig["Naming mismatch"].color,
 												}}
 											>
 												<div className="flex flex-row  items-center gap-3 ">
 													<div> {issueConfig["Naming mismatch"].icon} </div>
-													<div className="text-[#5280ff]"> {issue.field} </div>
+													<div className="text-[#5280ff] font-mono"> {issue.field} </div>
 													<div className="bg-[#7c7676] p-[6px] text-[10px] font-bold rounded-lg">
 														{" "}
 														{issue.issue.toLowerCase()}{" "}
@@ -63,7 +63,7 @@ function AnalysisPanel() {
 											>
 												<div className="flex flex-row  items-center gap-3">
 													<div> {issueConfig["Missing field"].icon} </div>
-													<div className="text-[#5280ff]"> {issue.field} </div>
+													<div className="text-[#5280ff] font-mono"> {issue.field} </div>
 													<div className="bg-[#7c7676] p-[6px] text-[10px] font-bold rounded-lg">
 														{issue.issue.toLowerCase()}
 													</div>
@@ -86,7 +86,7 @@ function AnalysisPanel() {
 										>
 											<div className="flex flex-row items-center gap-3">
 												<div> {issueConfig["Type mismatch"].icon} </div>
-												<div className="text-[#5280ff]"> {issue.field} </div>
+												<div className="text-[#5280ff] font-mono"> {issue.field} </div>
 												<div className="bg-[#7c7676] p-[6px] text-[10px] font-bold rounded-lg">
 													{issue.issue.toLowerCase()}
 												</div>

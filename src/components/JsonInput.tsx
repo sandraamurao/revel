@@ -120,7 +120,7 @@ function JsonInput() {
 							onChange={handleOnChange}
 							name="request"
 							placeholder='{ "userId": 123, "data": {...} }'
-							className="w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
+							className="font-mono w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
 							value={requestJson}
 						>
 							{" "}
@@ -134,7 +134,7 @@ function JsonInput() {
 							onChange={handleOnChange}
 							name="response"
 							placeholder='{ "user_id": 123, "action": "fetch_data" }'
-							className="w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
+							className="font-mono w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
 							value={responseJson}
 						>
 							{" "}
