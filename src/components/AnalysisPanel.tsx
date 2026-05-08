@@ -1,6 +1,7 @@
 import { useApiState } from "../store/useStore";
-import { AlertTriangle, XCircle } from "lucide-react";
+import { AlertTriangle, XCircle, CheckCircle } from "lucide-react";
 import type { Issue } from "../utils/compareJson";
+import DiffViewer from "./DiffViewer";
 
 function AnalysisPanel() {
 	const issues = useApiState((state) => state.issues);
@@ -25,6 +26,13 @@ function AnalysisPanel() {
 	return (
 		<>
 			<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5">
+				{!issues.length && !error && (
+					<div className="flex flex-col justify-center items-center h-full">
+						<p className="text-center"> No analysis yet </p>
+						<p className="text-center"> Enter JSON and click Analyze </p>
+					</div>
+				)}
+
 				{
 					!issues.length && error && (
 						<div> {error} </div>
@@ -35,7 +43,11 @@ function AnalysisPanel() {
 					<>
 						<h1> Analysis </h1>
 
-						<div className="mt-3 mb-4"> ⚠️ Detected Issues </div>
+						{/* DETECTED ISSUES */}
+						<div className="mt-3 mb-4 flex flex-row items-center gap-2">
+							<AlertTriangle className="w-4 h-4 text-yellow-500" />
+							Detected Issues
+						</div>
 						<div>
 							{issues.map((issue, index) => (
 								<div key={index} className="mb-3">
@@ -68,14 +80,15 @@ function AnalysisPanel() {
 								</div>
 							))}
 						</div>
-					</>
-				)}
 
-				{!issues.length && !error && (
-					<div className="flex flex-col justify-center items-center h-full">
-						<p className="text-center"> No analysis yet </p>
-						<p className="text-center"> Enter JSON and click Analyze </p>
-					</div>
+						{/* JSON DIFF */}
+						<div className="mt-6 mb-4 flex flex-row items-center gap-2">
+							<CheckCircle className="w-4 h-4 text-green-500" />
+							JSON Diff
+						</div>
+
+						<DiffViewer></DiffViewer>
+					</>
 				)}
 			</div>
 		</>
