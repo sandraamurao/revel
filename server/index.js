@@ -38,11 +38,21 @@ app.post("/analyze", async (req, res) => {
 
 			Mode: ${truth}
 			Mode is for following which json object should be expected. 
-			The ${truth} JSON is the source of truth. 
+			The ${truth} JSON is the source of truth.
 			The ${shouldChange} JSON must be updated to match it.
 			Explain what the ${shouldChange} is doing wrong.
 			Suggested fixes should tell the developer what to change in the ${shouldChange}.
 			NOTE: DO NOT MENTION ANYTHING ABOUT THE MODE! Never include any info about this mode in the explanation!
+
+			Do not include suggested changes to the request and response. I just want to see only the explanation and suggested fixes.
+
+			Format you should follow — strictly follow this exact format and nothing else:
+			[Your 2-3 sentence explanation here, no heading, starts immediately]
+
+			### Suggested Fixes
+			- [fix 1]
+			- [fix 2]
+			- [fix 3]
 
 			Keep the total response under or maximum of 200 words.`;
 
