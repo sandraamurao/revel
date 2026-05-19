@@ -1,9 +1,22 @@
 import { useState } from "react";
 import { useApiState } from "../store/useStore";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { MergeView } from "@codemirror/merge";
-import { EditorState } from "@codemirror/state";
-import { useEffect, useRef } from "react";
+import { flattenObject } from "../utils/flattenObject";
+
+interface DataMapRow {
+	requestKey: string | null;
+	responseKey: string | null;
+	requestValue: unknown;
+	responseValue: unknown;
+	status:
+		| "match"
+		| "type-mismatch"
+		| "naming-mismatch"
+		| "missing-request"
+		| "missing-response"
+		| "missing"
+		| "extra";
+}
 
 function DiffViewer() {
 	const [isOpen, setIsOpen] = useState(true);
@@ -14,28 +27,69 @@ function DiffViewer() {
 	const response = JSON.parse(responseJson);
 	const statuses = getStatus(request, response);
 	const issues = useApiState((state) => state.issues);
-
-	const ref = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		if (!ref.current || !issues.length) return;
-
-		ref.current.innerHTML = "";
-
-		new MergeView({
-			a: {
-				doc: requestJson,
-				extensions: [EditorState.readOnly.of(true)],
-			},
-			b: {
-				doc: responseJson,
-				extensions: [EditorState.readOnly.of(true)],
-			},
-			parent: ref.current,
-		});
-	}, [requestJson, responseJson, issues]);
+	const truth = useApiState((state) => state.sourceOfTruth);
+	const flatRequest = flattenObject(JSON.parse(requestJson));
+	const flatResponse = flattenObject(JSON.parse(responseJson));
 
 	// prevents rendering and JSON.parse crash before user clicks Analyze:
 	if (!issues.length) return null;
+
+	const isReqTruth = truth === "Request";
+
+	const getReqKey = (expected: string, actual: string) =>
+		isReqTruth ? expected : actual;
+	const getResKey = (expected: string, actual: string) =>
+		isReqTruth ? actual : expected;
+
+	const issueActuals = issues.map(i => i.actual)
+	const allKeys = [...new Set([
+	...Object.keys(isReqTruth ? flatRequest : flatResponse),
+	...Object.keys(isReqTruth ? flatResponse : flatRequest)
+	])].filter(key => !issueActuals.includes(key))
+
+	// Map rows for each property line of request and response
+	const rows: DataMapRow[] = allKeys.map((key) => {
+		const issue = issues.find((i) => i.field === key);
+		const inTruth = key in (isReqTruth ? flatRequest : flatResponse)
+
+		// if key is not in source of truth, it's an "extra key"
+		if (!inTruth) return {
+			requestKey: isReqTruth ? null : key,
+			responseKey: isReqTruth ? key : null,
+			requestValue: isReqTruth ? null : flatRequest[key],
+			responseValue: isReqTruth ? flatResponse[key] : null,
+			status: "extra" as DataMapRow["status"]
+		}
+
+		if (!issue || issue.issue === "Type mismatch")
+			return {
+				requestKey: key,
+				responseKey: key,
+				requestValue: flatRequest[key],
+				responseValue: flatResponse[key],
+				status: !issue ? "match" : "type-mismatch",
+			};
+
+		if (issue.issue === "Naming mismatch")
+			return {
+				requestKey: getReqKey(issue.expected, issue.actual),
+				responseKey: getResKey(issue.expected, issue.actual),
+				requestValue: flatRequest[getReqKey(issue.expected, issue.actual)],
+				responseValue: flatResponse[getResKey(issue.expected, issue.actual)],
+				status: "naming-mismatch",
+			};
+
+		if (issue.issue === "Missing field")
+			return {
+				requestKey: isReqTruth ? key : null,
+				responseKey: isReqTruth ? null : key,
+				requestValue: isReqTruth ? flatRequest[key] : null,
+				responseValue: isReqTruth ? null : flatResponse[key],
+				status: isReqTruth ? "missing-response" : "missing-request",
+			};
+
+		
+	});
 
 	function getStatus(
 		request: Record<string, unknown>,
@@ -61,6 +115,18 @@ function DiffViewer() {
 
 			return { key: k, status };
 		});
+	}
+
+	function setRowColor(status: string) {
+		if (status === "match" || status === "extra") return "bg-[#379737]/40";
+
+		if (
+			status === "missing-response" ||
+			status === "missing-request" ||
+			status === "naming-mismatch" ||
+			status === "type-mismatch"
+		)
+			return "bg-[#9b2b2b]/50";
 	}
 
 	return (
@@ -96,10 +162,80 @@ function DiffViewer() {
 				<div className="p-2 text-[14px]"> 🟢 RESPONSE </div>
 			</div>
 
-			<div
-				ref={ref}
-				className={`w-full ${isOpen ? "block" : "hidden"} border bg-[#1a1a24]`}
-			/>
+			{isOpen && (
+				<div>
+					{rows.map((row, i) => (
+						<div key={i} className="grid grid-cols-2 font-mono ">
+							<div className={`border ${setRowColor(row.status)} p-2 flex flex-row`}>
+								<div className="text-[#746f6f]">
+									{i + 1}
+									{"\u00A0"}
+									{"\u00A0"}
+								</div>
+								<div>
+									{row.requestKey && (
+										<>
+											<span
+												className={`${row.status === "naming-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
+											>
+												{row.requestKey}
+											</span>
+											:{" "}
+											<span
+												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
+											>
+												{JSON.stringify(row.requestValue)}
+											</span>
+											
+										</>
+									)}
+								</div>
+								<div>
+									{row.status === "missing-request" && (
+										<div className="flex flex-row gap-2 ">
+											<div className="border border-dashed border-[#c51616] rounded-md w-50"></div>{" "}
+											<span className="">missing</span>{" "}
+										</div>
+									)}	
+								</div>
+							</div>
+							<div className={`border ${setRowColor(row.status)} p-2 flex flex-row`}>
+								<div className="text-[#746f6f]">
+									{i + 1}
+									{"\u00A0"}
+									{"\u00A0"}
+								</div>
+								<div>
+									{row.responseKey && (
+										<>
+											<span
+												className={`${row.status === "naming-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
+											>
+												{row.responseKey}
+											</span>
+											:{" "}
+											<span
+												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
+											>
+												{JSON.stringify(row.responseValue)}
+											</span>
+										</>
+									)}
+								</div>
+								<div>
+									{row.status === "missing-response" && (
+										<div className="flex flex-row gap-2">
+											<div className="border border-dashed border-[#c51616] rounded-md w-50 "></div>
+											<span className="mr-3">missing</span>{" "}
+										</div>
+									)}
+								</div>
+								
+							</div>
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 }

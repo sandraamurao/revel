@@ -3,6 +3,7 @@ import { useApiState } from "../store/useStore";
 import compareJson from "../utils/compareJson";
 import { getAiExplanation } from "../services/api";
 import { Trash2 } from "lucide-react";
+import { flattenObject } from "../utils/flattenObject";
 
 function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
@@ -60,6 +61,8 @@ function JsonInput() {
 		try {
 			const request = JSON.parse(requestJson);
 			const response = JSON.parse(responseJson);
+			const flatRequest = flattenObject(request)
+			const flatResponse = flattenObject(response)
 
 			if (
 				typeof request === "object" &&
@@ -69,8 +72,8 @@ function JsonInput() {
 			) {
 				const issues =
 					sourceOfTruth === "Request"
-						? compareJson(request, response, "")
-						: compareJson(response, request, "");
+						? compareJson(flatRequest, flatResponse, "")
+						: compareJson(flatResponse, flatRequest, "");
 				setIssues(issues);
 
 				const explanation =

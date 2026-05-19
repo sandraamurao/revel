@@ -1,5 +1,5 @@
 import { useApiState } from "../store/useStore";
-import { AlertTriangle, XCircle, CheckCircle } from "lucide-react";
+import { AlertTriangle, XCircle, CheckCircle, Search } from "lucide-react";
 import type { Issue } from "../utils/compareJson";
 import DiffViewer from "./DiffViewer";
 
@@ -41,13 +41,13 @@ function AnalysisPanel() {
 
 				{issues.length > 0 && (
 					<>
-						<h1> Analysis </h1>
+						<h1 className="font-bold text-xl"> Analysis </h1>
 
 						{/* DETECTED ISSUES */}
-						<div className="mt-3 mb-4 flex flex-row items-center gap-2">
+						<h3 className="mt-3 mb-4 flex flex-row items-center gap-2 font-bold">
 							<AlertTriangle className="w-4 h-4 text-yellow-500" />
 							Detected Issues
-						</div>
+						</h3>
 						<div>
 							{issues.map((issue, index) => (
 								<div key={index} className="mb-3">
@@ -82,10 +82,10 @@ function AnalysisPanel() {
 						</div>
 
 						{/* JSON DIFF */}
-						<div className="mt-6 mb-4 flex flex-row items-center gap-2">
+						<h3 className="mt-6 mb-4 flex flex-row items-center gap-2 font-bold">
 							<CheckCircle className="w-4 h-4 text-green-500" />
 							JSON Diff
-						</div>
+						</h3>
 
 						<DiffViewer></DiffViewer>
 					</>
