@@ -1,95 +1,25 @@
 import { useState } from "react";
 import { useApiState } from "../store/useStore";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { buildDataRows } from "../utils/buildDataRows";
 import { flattenObject } from "../utils/flattenObject";
-
-interface DataMapRow {
-	requestKey: string | null;
-	responseKey: string | null;
-	requestValue: unknown;
-	responseValue: unknown;
-	status:
-		| "match"
-		| "type-mismatch"
-		| "naming-mismatch"
-		| "missing-request"
-		| "missing-response"
-		| "missing"
-		| "extra";
-}
 
 function DiffViewer() {
 	const [isOpen, setIsOpen] = useState(true);
 
 	const requestJson = useApiState((state) => state.requestJson);
 	const responseJson = useApiState((state) => state.responseJson);
-	const request = JSON.parse(requestJson);
-	const response = JSON.parse(responseJson);
-	const statuses = getStatus(request, response);
-	const issues = useApiState((state) => state.issues);
-	const truth = useApiState((state) => state.sourceOfTruth);
 	const flatRequest = flattenObject(JSON.parse(requestJson));
 	const flatResponse = flattenObject(JSON.parse(responseJson));
 
+	const truth = useApiState((state) => state.sourceOfTruth);
+	const statuses = getStatus(JSON.parse(requestJson), JSON.parse(responseJson));
+	const issues = useApiState((state) => state.issues);
+
+	const rows = buildDataRows(issues, flatRequest, flatResponse, truth);
+
 	// prevents rendering and JSON.parse crash before user clicks Analyze:
 	if (!issues.length) return null;
-
-	const isReqTruth = truth === "Request";
-
-	const getReqKey = (expected: string, actual: string) =>
-		isReqTruth ? expected : actual;
-	const getResKey = (expected: string, actual: string) =>
-		isReqTruth ? actual : expected;
-
-	const issueActuals = issues.map(i => i.actual)
-	const allKeys = [...new Set([
-	...Object.keys(isReqTruth ? flatRequest : flatResponse),
-	...Object.keys(isReqTruth ? flatResponse : flatRequest)
-	])].filter(key => !issueActuals.includes(key))
-
-	// Map rows for each property line of request and response
-	const rows: DataMapRow[] = allKeys.map((key) => {
-		const issue = issues.find((i) => i.field === key);
-		const inTruth = key in (isReqTruth ? flatRequest : flatResponse)
-
-		// if key is not in source of truth, it's an "extra key"
-		if (!inTruth) return {
-			requestKey: isReqTruth ? null : key,
-			responseKey: isReqTruth ? key : null,
-			requestValue: isReqTruth ? null : flatRequest[key],
-			responseValue: isReqTruth ? flatResponse[key] : null,
-			status: "extra" as DataMapRow["status"]
-		}
-
-		if (!issue || issue.issue === "Type mismatch")
-			return {
-				requestKey: key,
-				responseKey: key,
-				requestValue: flatRequest[key],
-				responseValue: flatResponse[key],
-				status: !issue ? "match" : "type-mismatch",
-			};
-
-		if (issue.issue === "Naming mismatch")
-			return {
-				requestKey: getReqKey(issue.expected, issue.actual),
-				responseKey: getResKey(issue.expected, issue.actual),
-				requestValue: flatRequest[getReqKey(issue.expected, issue.actual)],
-				responseValue: flatResponse[getResKey(issue.expected, issue.actual)],
-				status: "naming-mismatch",
-			};
-
-		if (issue.issue === "Missing field")
-			return {
-				requestKey: isReqTruth ? key : null,
-				responseKey: isReqTruth ? null : key,
-				requestValue: isReqTruth ? flatRequest[key] : null,
-				responseValue: isReqTruth ? null : flatResponse[key],
-				status: isReqTruth ? "missing-response" : "missing-request",
-			};
-
-		
-	});
 
 	function getStatus(
 		request: Record<string, unknown>,
@@ -117,21 +47,19 @@ function DiffViewer() {
 		});
 	}
 
-	function setRowColor(status: string) {
-		if (status === "match" || status === "extra") return "bg-[#379737]/40";
+	function setCellStyle(status: string) {
+		if (status === "match" || status === "extra") return "bg-[#379737]/30 border-l-[#12e42e]";
 
-		if (
-			status === "missing-response" ||
-			status === "missing-request" ||
-			status === "naming-mismatch" ||
-			status === "type-mismatch"
-		)
-			return "bg-[#9b2b2b]/50";
+		if (status === "naming-mismatch" || status === "type-mismatch")
+			return "bg-[#9b2b2b]/30 border-l-[#ce1010]";
+		
+		if (status.includes("missing"))
+			return "border-l-[#ce1010]";
 	}
 
 	return (
-		<div>
-			<div className="flex flex-row justify-between gap-3 pr-7 pl-7 pt-3 pb-3 border rounded-t-2xl font-mono bg-[#1a1f31]">
+		<div className="text-sm">
+			<div className="flex flex-row justify-between gap-3 pr-7 pl-7 pt-3 pb-3 outline outline-[#474747] rounded-t-2xl font-mono bg-[#1a1f31]">
 				<div className="flex flex-row gap-4 justify-center items-center">
 					<span className="text-[13px] ">diff</span>
 					<span className="text-[13px] bg-[#c27209]/20 pr-3 pl-3 rounded-2xl border border-[#e0710a]">
@@ -156,17 +84,22 @@ function DiffViewer() {
 				</button>
 			</div>
 			<div
-				className={`grid grid-cols-2 border ${!isOpen ? "rounded-b-2xl" : ""} font-mono  bg-[#121622]`}
+				className={`grid grid-cols-2 outline outline-[#474747] ${!isOpen ? "rounded-b-2xl" : ""} font-mono bg-[#121622]`}
 			>
-				<div className="p-2 border-r text-[14px]"> 🔴 REQUEST </div>
+				<div className="p-2 border-r-[0.5px] border-r-[#474747] text-[14px]">
+					{" "}
+					🔴 REQUEST{" "}
+				</div>
 				<div className="p-2 text-[14px]"> 🟢 RESPONSE </div>
 			</div>
 
 			{isOpen && (
 				<div>
 					{rows.map((row, i) => (
-						<div key={i} className="grid grid-cols-2 font-mono ">
-							<div className={`border ${setRowColor(row.status)} p-2 flex flex-row`}>
+						<div key={i} className={`grid grid-cols-2 font-mono`}>
+							<div
+								className={`border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
+							>
 								<div className="text-[#746f6f]">
 									{i + 1}
 									{"\u00A0"}
@@ -186,26 +119,29 @@ function DiffViewer() {
 											>
 												{JSON.stringify(row.requestValue)}
 											</span>
-											
 										</>
 									)}
 								</div>
 								<div>
 									{row.status === "missing-request" && (
 										<div className="flex flex-row gap-2 ">
-											<div className="border border-dashed border-[#c51616] rounded-md w-50"></div>{" "}
-											<span className="">missing</span>{" "}
+											<div className="border border-dashed border-[#928282] rounded-md w-50  bg-[#928282]/15"></div>{" "}
+											<span className="text-[#bbaeae]">missing</span>{" "}
 										</div>
-									)}	
+									)}
 								</div>
 							</div>
-							<div className={`border ${setRowColor(row.status)} p-2 flex flex-row`}>
+							<div
+								className={`border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
+							>
 								<div className="text-[#746f6f]">
 									{i + 1}
 									{"\u00A0"}
 									{"\u00A0"}
 								</div>
-								<div>
+								<div
+									className={`${truth === "Request" && row.status === "missing-request" && "bg-[#d83b3b]"}`}
+								>
 									{row.responseKey && (
 										<>
 											<span
@@ -225,12 +161,11 @@ function DiffViewer() {
 								<div>
 									{row.status === "missing-response" && (
 										<div className="flex flex-row gap-2">
-											<div className="border border-dashed border-[#c51616] rounded-md w-50 "></div>
-											<span className="mr-3">missing</span>{" "}
+											<div className="border border-dashed border-[#928282] rounded-md w-50 bg-[#928282]/15"></div>
+											<span className="text-[#bbaeae]">missing</span>{" "}
 										</div>
 									)}
 								</div>
-								
 							</div>
 						</div>
 					))}

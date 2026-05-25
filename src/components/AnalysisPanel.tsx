@@ -1,12 +1,23 @@
 import { useApiState } from "../store/useStore";
-import { AlertTriangle, XCircle, CheckCircle, Search } from "lucide-react";
+import { AlertTriangle, XCircle, CheckCircle, ArrowRight } from "lucide-react";
 import type { Issue } from "../utils/compareJson";
 import DiffViewer from "./DiffViewer";
+import { buildDataRows } from "../utils/buildDataRows";
+import { flattenObject } from "../utils/flattenObject";
 
 function AnalysisPanel() {
 	const issues = useApiState((state) => state.issues);
 	const error = useApiState((state) => state.error);
 	const sourceOfTruth = useApiState((state) => state.sourceOfTruth);
+
+	const requestJson = useApiState((state) => state.requestJson);
+	const responseJson = useApiState((state) => state.responseJson);
+	const flatRequest = requestJson ? flattenObject(JSON.parse(requestJson)) : {};
+	const flatResponse = responseJson
+		? flattenObject(JSON.parse(responseJson))
+		: {};
+
+	const rows = buildDataRows(issues, flatRequest, flatResponse, sourceOfTruth);
 
 	const colorCodes = {
 		"Naming mismatch": "border-[#ffee00]",
@@ -22,6 +33,39 @@ function AnalysisPanel() {
 		if (issue.issue === "Type mismatch")
 			return `Expected ${issue.expected.toLowerCase()}, received ${issue.actual.toLowerCase()} in ${sourceOfTruth === "Response" ? "request" : "response"}`;
 	}
+
+	const getRowStatus = (status: string) => {
+		if (status.includes("missing")) {
+			return "missing";
+		}
+		if (status.includes("mismatch")) {
+			return "mismatch";
+		}
+	};
+
+	const getMappingBgColor = (status: string) => {
+		if (status.includes("missing")) {
+			return "bg-[#800000]/20";
+		}
+		if (status.includes("mismatch")) {
+			return "bg-[#dd7703]/10";
+		}
+		if (status.includes("match")) {
+			return "bg-[#3cff00]/10";
+		}
+	};
+
+	const getMappingBorderColor = (status: string) => {
+		if (status.includes("missing")) {
+			return "border-[#bb0000]";
+		}
+		if (status.includes("mismatch")) {
+			return "border-[#fc8600fb]";
+		}
+		if (status.includes("match")) {
+			return "border-[#0ca821]";
+		}
+	};
 
 	return (
 		<>
@@ -88,6 +132,32 @@ function AnalysisPanel() {
 						</h3>
 
 						<DiffViewer></DiffViewer>
+
+						{/* Data Mapping */}
+						<div className="mb-4 mt-5">
+							{" "}
+							<h3 className="font-bold flex flex-row items-center gap-2"><ArrowRight className="w-4 h-4 text-[#c70fd8]" strokeWidth={3}  />Data Mapping</h3>{" "}
+						</div>
+
+						{rows
+							.filter((r) => r.status !== "extra")
+							.map((key, i) => (
+								<div
+									key={i}
+									className={`text-sm border rounded-xl mb-3 font-mono p-3 flex flex-row justify-between items-center ${getMappingBgColor(key.status)} ${getMappingBorderColor(key.status)}`}
+								>
+									<div>
+										<span className="text-[#3d71ff]">{key.requestKey ?? "?"}{" "}</span>
+										<span
+											className={`${key.status.includes("mismatch") || key.status.includes("missing") ? "text-[#e00202]" : "text-[#3cff00]"}`}
+										>
+											→
+										</span>{" "}
+										<span className="text-[#e002e0]">{key.responseKey ?? "?"}</span>
+									</div>
+									<div className={`text-sm font-bold ${key.status.includes("mismatch") && "text-[#ff9129]"} ${key.status.includes("missing") && "text-[#f75050]"}`}>{getRowStatus(key.status)}</div>
+								</div>
+							))}
 					</>
 				)}
 			</div>
