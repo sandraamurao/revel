@@ -133,14 +133,20 @@ function JsonInput() {
 		<>
 			<div
 				id="api-input-container"
-				className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 "
+				className="h-full flex flex-col border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6"
 			>
 				<div
 					id="api-input-header"
-					className="flex flex-row justify-between mb-4"
+					className="flex flex-row justify-between mb-6"
 				>
-					<h1> API Input </h1>
-					<button onClick={loadExample}> Load example </button>
+					<h1 className="font-bold text-xl"> API Input </h1>
+					<button
+						onClick={loadExample}
+						className="border border-[#4d379c] bg-[#20348a]/40 pr-3 pl-3 pt-2 pb-2 rounded-2xl font-mono hover:bg-[#20348a]"
+					>
+						{" "}
+						Load example{" "}
+					</button>
 				</div>
 				<div
 					id="api-btn-container"
@@ -157,33 +163,33 @@ function JsonInput() {
 					))}
 				</div>
 
-				<div id="request-textarea">
-					{activeTextArea == "Request" && (
+				{activeTextArea == "Request" && (
+					<div id="request-textarea" className="mb-4 flex-1">
 						<textarea
 							onChange={handleOnChange}
 							name="request"
 							placeholder='{ "userId": 123, "data": {...} }'
-							className="font-mono w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
+							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
 							value={requestJson}
 						>
 							{" "}
 						</textarea>
-					)}
-				</div>
+					</div>
+				)}
 
-				<div id="response-textarea" className="mb-4">
-					{activeTextArea == "Response" && (
+				{activeTextArea == "Response" && (
+					<div id="response-textarea" className="mb-4 flex-1">
 						<textarea
 							onChange={handleOnChange}
 							name="response"
 							placeholder='{ "user_id": 123, "action": "fetch_data" }'
-							className="font-mono w-full h-100 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl overflow-auto"
+							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
 							value={responseJson}
 						>
 							{" "}
 						</textarea>
-					)}
-				</div>
+					</div>
+				)}
 
 				<div>
 					<div className="relative inline-flex items-start">
