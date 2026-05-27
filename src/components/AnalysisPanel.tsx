@@ -147,7 +147,13 @@ function AnalysisPanel() {
 						{/* Data Mapping */}
 						<div className="mb-4 mt-5">
 							{" "}
-							<h3 className="font-bold flex flex-row items-center gap-2"><ArrowRight className="w-4 h-4 text-[#c70fd8]" strokeWidth={3}  />Data Mapping</h3>{" "}
+							<h3 className="font-bold flex flex-row items-center gap-2">
+								<ArrowRight
+									className="w-4 h-4 text-[#c70fd8]"
+									strokeWidth={3}
+								/>
+								Data Mapping
+							</h3>{" "}
 						</div>
 
 						{rows
@@ -158,7 +164,9 @@ function AnalysisPanel() {
 									className={`text-sm border rounded-xl mb-3 font-mono p-3 flex flex-row justify-between items-center ${getMappingBgColor(key.status)} ${getMappingBorderColor(key.status)}`}
 								>
 									<div>
-										<span className="text-[#3d71ff]">{key.requestKey ?? "?"}{" "}</span>
+										<span className="text-[#3d71ff]">
+											{key.requestKey ?? "?"}{" "}
+										</span>
 										<span
 											className={`${key.status.includes("mismatch") || key.status.includes("missing") ? "text-[#e00202]" : "text-[#3cff00]"}`}
 										>
