@@ -54,6 +54,15 @@ function JsonInput() {
 	}
 
 	function setMode(mode: string) {
+		// clear previous analysis when mode switches
+		// this way, analysispanel won't show the wrong, unexpected issues
+		// and user should be prompted to click "Analyze" again
+		
+		setIssues([]);
+		setError("");
+		setAiExplanation("");
+
+		// set the source of truth
 		setSourceOfTruth(mode);
 	}
 
