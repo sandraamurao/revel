@@ -12,10 +12,21 @@ function AnalysisPanel() {
 
 	const requestJson = useApiState((state) => state.requestJson);
 	const responseJson = useApiState((state) => state.responseJson);
-	const flatRequest = requestJson ? flattenObject(JSON.parse(requestJson)) : {};
-	const flatResponse = responseJson
-		? flattenObject(JSON.parse(responseJson))
-		: {};
+	const flatRequest = (() => {
+		try {
+			return flattenObject(JSON.parse(requestJson));
+		} catch {
+			return {};
+		}
+	})();
+
+	const flatResponse = (() => {
+		try {
+			return flattenObject(JSON.parse(responseJson));
+		} catch {
+			return {};
+		}
+	})();
 
 	const rows = buildDataRows(issues, flatRequest, flatResponse, sourceOfTruth);
 
