@@ -7,7 +7,7 @@ import { flattenObject } from "../utils/flattenObject";
 
 function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
-
+	
 	// Set api states
 	// set comparison mode
 	const setSourceOfTruth = useApiState((state) => state.setSourceOfTruth);
@@ -57,7 +57,6 @@ function JsonInput() {
 		// clear previous analysis when mode switches
 		// this way, analysispanel won't show the wrong, unexpected issues
 		// and user should be prompted to click "Analyze" again
-		
 		setIssues([]);
 		setError("");
 		setAiExplanation("");
@@ -66,12 +65,44 @@ function JsonInput() {
 		setSourceOfTruth(mode);
 	}
 
+	function loadExample() {
+		const request = {
+			userId: 42,
+			firstName: "Alice",
+			emailAddress: "alice@email.com",
+			isActive: true,
+			createdAt: "2026-04-15",
+			order: {
+				orderId: "ORD-001",
+				amount: 99.99,
+				items: 3,
+			},
+		};
+
+		const response = {
+			user_id: 42,
+			firstName: "Alice",
+			email_address: "alice@email.com",
+			isActive: "true",
+			order: {
+				orderId: "ORD-001",
+				amount: 99.99,
+			},
+			status: "active",
+		};
+
+		setRequest(JSON.stringify(request, null, 2));
+		setResponse(JSON.stringify(response, null, 2));
+	}
+
 	async function handleAnalyze() {
+		console.log("request", requestJson);
+		console.log("resposne", responseJson);
 		try {
 			const request = JSON.parse(requestJson);
 			const response = JSON.parse(responseJson);
-			const flatRequest = flattenObject(request)
-			const flatResponse = flattenObject(response)
+			const flatRequest = flattenObject(request);
+			const flatResponse = flattenObject(response);
 
 			if (
 				typeof request === "object" &&
@@ -109,7 +140,7 @@ function JsonInput() {
 					className="flex flex-row justify-between mb-4"
 				>
 					<h1> API Input </h1>
-					<div> Load example </div>
+					<button onClick={loadExample}> Load example </button>
 				</div>
 				<div
 					id="api-btn-container"
