@@ -8,7 +8,7 @@ function AIExplanationPanel() {
 
 	return (
 		<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 ">
-			<div className="flex flex-row items-center gap-3 font-bold mb-4"> <Info className="w-5 h-5 text-blue-400" /> AI Explanation </div>
+			<div className="flex flex-row items-center gap-3 font-bold mb-4 text-xl"> <Info className="w-5 h-5 text-blue-400" /> AI Explanation </div>
 			<div>
 				<ReactMarkdown
 					remarkPlugins={[remarkGfm]}
@@ -36,7 +36,7 @@ function AIExplanationPanel() {
 					}}
 				>
 					{aiExplanation}
-				</ReactMarkdown>{" "}
+				</ReactMarkdown>
 			</div>
 		</div>
 	);

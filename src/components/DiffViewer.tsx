@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useApiState } from "../store/useStore";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Settings } from "lucide-react";
 import { buildDataRows } from "../utils/buildDataRows";
 import { flattenObject } from "../utils/flattenObject";
 
@@ -61,12 +61,13 @@ function DiffViewer() {
 		<div className="text-sm">
 			<div className="flex flex-row justify-between gap-3 pr-7 pl-7 pt-3 pb-3 outline outline-[#474747] rounded-t-2xl font-mono bg-[#1a1f31]">
 				<div className="flex flex-row gap-4 justify-center items-center">
+					<span className="text-[#928b8b]"><Settings className="w-4 h-4"  /></span>
 					<span className="text-[13px] ">diff</span>
 					<span className="text-[13px] bg-[#c27209]/20 pr-3 pl-3 rounded-2xl border border-[#e0710a]">
 						{statuses.filter((r) => r.status === "mismatch").length} mismatches
 					</span>
 					<span className="text-[13px]  bg-[#eb0c0c]/30 pr-3 pl-3 rounded-2xl border border-[#c93232]">
-						{statuses.filter((r) => r.status.includes("missing")).length}{" "}
+						{statuses.filter((r) => r.status.includes("missing")).length}
 						missing
 					</span>
 					<span className="text-[13px]  bg-[#11b126]/20 pr-3 pl-3 rounded-2xl border border-[#11b126]">
@@ -75,20 +76,20 @@ function DiffViewer() {
 				</div>
 
 				<button onClick={() => setIsOpen(!isOpen)}>
-					{" "}
+					
 					{isOpen ? (
 						<ChevronDown className="w-4 h-4" />
 					) : (
 						<ChevronUp className="w-4 h-4" />
-					)}{" "}
+					)}
 				</button>
 			</div>
 			<div
 				className={`grid grid-cols-2 outline outline-[#474747] ${!isOpen ? "rounded-b-2xl" : ""} font-mono bg-[#121622]`}
 			>
 				<div className="p-2 border-r-[0.5px] border-r-[#474747] text-[14px]">
-					{" "}
-					🔴 REQUEST{" "}
+					
+					🔴 REQUEST
 				</div>
 				<div className="p-2 text-[14px]"> 🟢 RESPONSE </div>
 			</div>
@@ -113,7 +114,7 @@ function DiffViewer() {
 											>
 												{row.requestKey}
 											</span>
-											:{" "}
+											:&nbsp;
 											<span
 												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
 											>
@@ -125,8 +126,8 @@ function DiffViewer() {
 								<div>
 									{row.status === "missing-request" && (
 										<div className="flex flex-row gap-2 ">
-											<div className="border border-dashed border-[#928282] rounded-md w-50  bg-[#928282]/15"></div>{" "}
-											<span className="text-[#bbaeae]">missing</span>{" "}
+											<div className="border border-dashed border-[#928282] rounded-md w-50  bg-[#928282]/15"></div>
+											<span className="text-[#bbaeae]">missing</span>
 										</div>
 									)}
 								</div>
@@ -149,7 +150,7 @@ function DiffViewer() {
 											>
 												{row.responseKey}
 											</span>
-											:{" "}
+											:&nbsp;
 											<span
 												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
 											>
@@ -162,7 +163,7 @@ function DiffViewer() {
 									{row.status === "missing-response" && (
 										<div className="flex flex-row gap-2">
 											<div className="border border-dashed border-[#928282] rounded-md w-50 bg-[#928282]/15"></div>
-											<span className="text-[#bbaeae]">missing</span>{" "}
+											<span className="text-[#bbaeae]">missing</span>
 										</div>
 									)}
 								</div>

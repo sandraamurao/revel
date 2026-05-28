@@ -12,10 +12,8 @@ export async function getAiExplanation(issues: Issue[], expectedApiInput: Record
 				body: JSON.stringify({ issues, expectedApiInput, actualApiInput, sourceOfTruth }),
 			},
 		);
-		console.log("response ai: ", response);
 		const data = await response.json();
-		console.log("data ai: ", data);
-		return data.explanation; // ????
+		return data.explanation; 
 	} catch (e) {
 		console.error(e);
 	}

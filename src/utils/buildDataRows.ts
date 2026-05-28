@@ -40,7 +40,6 @@ export function buildDataRows(
 		const issue = issues.find((i) => i.field === key);
 		const inTruth = key in (isReqTruth ? flatRequest : flatResponse)
 
-        console.log(`key: ${key} - inTruth? ${inTruth}`);
 		// if key is not in source of truth, it's an "extra key"
 		if (!inTruth) return {
 			requestKey: isReqTruth ? null : key,

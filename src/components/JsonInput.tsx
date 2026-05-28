@@ -96,8 +96,6 @@ function JsonInput() {
 	}
 
 	async function handleAnalyze() {
-		console.log("request", requestJson);
-		console.log("resposne", responseJson);
 		try {
 			const request = JSON.parse(requestJson);
 			const response = JSON.parse(responseJson);
@@ -144,8 +142,8 @@ function JsonInput() {
 						onClick={loadExample}
 						className="border border-[#4d379c] bg-[#20348a]/40 pr-3 pl-3 pt-2 pb-2 rounded-2xl font-mono hover:bg-[#20348a]"
 					>
-						{" "}
-						Load example{" "}
+						
+						Load example
 					</button>
 				</div>
 				<div
@@ -172,7 +170,7 @@ function JsonInput() {
 							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
 							value={requestJson}
 						>
-							{" "}
+							
 						</textarea>
 					</div>
 				)}
@@ -186,7 +184,7 @@ function JsonInput() {
 							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
 							value={responseJson}
 						>
-							{" "}
+							
 						</textarea>
 					</div>
 				)}

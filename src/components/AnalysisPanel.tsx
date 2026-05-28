@@ -80,17 +80,21 @@ function AnalysisPanel() {
 
 	return (
 		<>
-			<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5">
+			<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 h-full">
 				{!issues.length && !error && (
 					<div className="flex flex-col justify-center items-center h-full">
 						<p className="text-center"> No analysis yet </p>
 						<p className="text-center"> Enter JSON and click Analyze </p>
 					</div>
 				)}
-
 				{
 					!issues.length && error && (
-						<div> {error} </div>
+						<div className="flex flex-col justify-center items-center h-full">
+							<div className="flex flex-col items-center gap-3 font-bold">
+								<XCircle className="w-8 h-8 text-[#db2020]" /> {error}!
+							</div>
+							<p> Please double check if your inputs are in JSON format!</p>
+						</div>
 					) /* Displays "Invalid JSON" message */
 				}
 
@@ -99,7 +103,7 @@ function AnalysisPanel() {
 						<h1 className="font-bold text-xl"> Analysis </h1>
 
 						{/* DETECTED ISSUES */}
-						<h3 className="mt-3 mb-4 flex flex-row items-center gap-2 font-bold">
+						<h3 className="mt-6 mb-4 flex flex-row items-center gap-2 font-bold">
 							<AlertTriangle className="w-4 h-4 text-yellow-500" />
 							Detected Issues
 						</h3>
@@ -109,7 +113,7 @@ function AnalysisPanel() {
 									<div
 										className={`flex flex-col border ${colorCodes[issue.issue as keyof typeof colorCodes]} rounded-lg p-3 bg-[#1a1f31]`}
 									>
-										<div className="flex flex-row items-center gap-3">
+										<div className="flex flex-row items-center gap-4">
 											{/* Icons */}
 											{issue.issue == "Naming mismatch" ||
 											issue.issue == "Type mismatch" ? (
@@ -121,23 +125,23 @@ function AnalysisPanel() {
 											{/* Issue.field */}
 											<div className="text-[#5280ff] font-mono">
 												{issue.field}
-											</div>
+											</div>	
 
 											{/* Issue meassage */}
-											<div className="bg-[#7c7676] p-[6px] ml-2 text-[10px] font-bold rounded-lg">
+											<div className="bg-[#47536d]/40 pt-[6px] pb-[6px] pr-[10px] pl-[10px] text-[13px] text-[#96a4c2] rounded-lg">
 												{issue.issue.toLowerCase()}
 											</div>
 										</div>
 
 										{/* display message based on the issue */}
-										<div> {getDisplayMessage(issue)} </div>
+										<div className="pt-2"> {getDisplayMessage(issue)} </div>
 									</div>
 								</div>
 							))}
 						</div>
 
 						{/* JSON DIFF */}
-						<h3 className="mt-6 mb-4 flex flex-row items-center gap-2 font-bold">
+						<h3 className="mt-7 mb-4 flex flex-row items-center gap-2 font-bold">
 							<CheckCircle className="w-4 h-4 text-green-500" />
 							JSON Diff
 						</h3>
@@ -145,15 +149,14 @@ function AnalysisPanel() {
 						<DiffViewer></DiffViewer>
 
 						{/* Data Mapping */}
-						<div className="mb-4 mt-5">
-							{" "}
+						<div className="mb-4 mt-7">
 							<h3 className="font-bold flex flex-row items-center gap-2">
 								<ArrowRight
 									className="w-4 h-4 text-[#c70fd8]"
 									strokeWidth={3}
 								/>
 								Data Mapping
-							</h3>{" "}
+							</h3>
 						</div>
 
 						{rows
@@ -165,16 +168,22 @@ function AnalysisPanel() {
 								>
 									<div>
 										<span className="text-[#3d71ff]">
-											{key.requestKey ?? "?"}{" "}
+											{key.requestKey ?? "?"}
 										</span>
 										<span
 											className={`${key.status.includes("mismatch") || key.status.includes("missing") ? "text-[#e00202]" : "text-[#3cff00]"}`}
 										>
-											→
-										</span>{" "}
-										<span className="text-[#e002e0]">{key.responseKey ?? "?"}</span>
+										&nbsp; → &nbsp;
+										</span>
+										<span className="text-[#e002e0]">
+											{key.responseKey ?? "?"}
+										</span>
 									</div>
-									<div className={`text-sm font-bold ${key.status.includes("mismatch") && "text-[#ff9129]"} ${key.status.includes("missing") && "text-[#f75050]"}`}>{getRowStatus(key.status)}</div>
+									<div
+										className={`text-sm font-bold ${key.status.includes("mismatch") && "text-[#ff9129]"} ${key.status.includes("missing") && "text-[#f75050]"}`}
+									>
+										{getRowStatus(key.status)}
+									</div>
 								</div>
 							))}
 					</>
