@@ -47,13 +47,10 @@ function JsonInput() {
 	}
 
 	function clearTextArea() {
-		if (activeTextArea === "Request") {
 			setRequest("");
-			setIssues([]);
-		} else if (activeTextArea === "Response") {
 			setResponse("");
 			setIssues([]);
-		}
+			setAiExplanation("");
 	}
 
 	function setMode(mode: string) {
@@ -234,7 +231,7 @@ function JsonInput() {
 					>
 						<span className=" flex flex-row items-center justify-center-safe gap-2">
 							<Trash2 className="w-5 h-5" />
-							<span className="hidden min-[450px]:inline">Clear</span>
+							<span className="hidden min-[450px]:inline">Clear All</span>
 						</span>
 					</button>
 				</div>
