@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useApiState } from "../store/useStore";
 import compareJson from "../utils/compareJson";
 import { getAiExplanation } from "../services/api";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { flattenObject } from "../utils/flattenObject";
 
 function JsonInput() {
@@ -46,11 +46,21 @@ function JsonInput() {
 		}
 	}
 
-	function clearTextArea() {
+	function clearAllTextArea() {
 			setRequest("");
 			setResponse("");
 			setIssues([]);
 			setAiExplanation("");
+	}
+	
+	function clearActiveTextArea() {
+		if (activeTextArea === "Request")
+			setRequest("");
+		else
+			setResponse("");
+
+		setIssues([]);
+		setAiExplanation("");
 	}
 
 	function setMode(mode: string) {
@@ -164,33 +174,23 @@ function JsonInput() {
 					))}
 				</div>
 
-				{activeTextArea == "Request" && (
-					<div id="request-textarea" className="mb-4 flex-1">
-						<textarea
-							onChange={handleOnChange}
-							name="request"
-							placeholder='{ "userId": 123, "data": {...} }'
-							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
-							value={requestJson}
-						>
-							
-						</textarea>
-					</div>
-				)}
-
-				{activeTextArea == "Response" && (
-					<div id="response-textarea" className="mb-4 flex-1">
-						<textarea
-							onChange={handleOnChange}
-							name="response"
-							placeholder='{ "user_id": 123, "action": "fetch_data" }'
-							className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
-							value={responseJson}
-						>
-							
-						</textarea>
-					</div>
-				)}
+				<div id="textarea-input" className="mb-4 flex-1 relative">
+					<button
+						onClick={clearActiveTextArea}
+						className="absolute top-2 right-2 bg-[#1a1f31] border border-[#474747] rounded-lg px-2 py-1 text-xs hover:bg-red-900/30 hover:border-red-500"
+					>
+						<X className="w-4 h-4 text-red-500" />
+					</button>
+					<textarea
+						onChange={handleOnChange}
+						name={sourceOfTruth}
+						placeholder='{ "userId": 123, "data": {...} }'
+						className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
+						value={activeTextArea === "Request" ? requestJson : responseJson}
+					>
+					</textarea>
+				</div>
+				
 
 				<div>
 					<div className="relative inline-flex items-start">
@@ -226,7 +226,7 @@ function JsonInput() {
 						Analyze
 					</button>
 					<button
-						onClick={clearTextArea}
+						onClick={clearAllTextArea}
 						className="flex-1 border-[0.5px] border-[#836fb9] rounded-lg pt-2 pb-2 hover:bg-[#b91010] hover:border-[#eb5959]"
 					>
 						<span className=" flex flex-row items-center justify-center-safe gap-2">
