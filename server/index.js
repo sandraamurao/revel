@@ -66,17 +66,20 @@ app.post("/analyze", async (req, res) => {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					model: "meta-llama/Llama-3.1-8B-Instruct:cerebras",
+					model: "openai/gpt-oss-120b:cerebras",
 					messages: [{ role: "user", content: prompt }],
 					max_tokens: 1500,
 				}),
 			},
 		);
-		console.log("response ai: ", response);
 		const data = await response.json();
+		if (!data.choices || !data.choices[0]) {
+			console.error("Unexpected response:", data)
+			return res.status(500).json({ error: "AI request failed" })
+		}
 		res.json({ explanation: data.choices[0].message.content });
 	} catch (e) {
-		console.error(e);
+		console.error("ERROR", e);
 		res.status(500).json({ error: "AI request failed" });
 	}
 });
