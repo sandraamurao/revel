@@ -7,7 +7,10 @@ import { flattenObject } from "../utils/flattenObject";
 
 function JsonInput() {
 	const [activeTextArea, setActiveTextArea] = useState("Request");
-	
+
+	// Loading states
+	const setIsLoading = useApiState((state) => state.setIsLoading);
+
 	// Set api states
 	// set comparison mode
 	const setSourceOfTruth = useApiState((state) => state.setSourceOfTruth);
@@ -96,6 +99,7 @@ function JsonInput() {
 	}
 
 	async function handleAnalyze() {
+		setIsLoading(true);
 		try {
 			const request = JSON.parse(requestJson);
 			const response = JSON.parse(responseJson);
@@ -124,6 +128,8 @@ function JsonInput() {
 			return null;
 		} catch (err) {
 			setError("Invalid JSON");
+		} finally {
+			setIsLoading(false)
 		}
 	}
 

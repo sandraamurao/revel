@@ -1,5 +1,5 @@
 import { useApiState } from "../store/useStore";
-import { AlertTriangle, XCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { AlertTriangle, XCircle, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import type { Issue } from "../utils/compareJson";
 import DiffViewer from "./DiffViewer";
 import { buildDataRows } from "../utils/buildDataRows";
@@ -9,6 +9,7 @@ function AnalysisPanel() {
 	const issues = useApiState((state) => state.issues);
 	const error = useApiState((state) => state.error);
 	const sourceOfTruth = useApiState((state) => state.sourceOfTruth);
+	const isLoading = useApiState((state) => state.isLoading)
 
 	const requestJson = useApiState((state) => state.requestJson);
 	const responseJson = useApiState((state) => state.responseJson);
@@ -81,14 +82,22 @@ function AnalysisPanel() {
 	return (
 		<>
 			<div className="border border-[#474747] bg-[#0b426d]/15 rounded-[27px] p-6 mb-5 h-full">
-				{!issues.length && !error && (
+				{/* Show loading message */}
+				{isLoading && (
+					<div className="flex flex-row items-center gap-3">
+						<Loader2 className="w-8 h-8 animate-spin text-[#4d379c]" />
+						<p className="text-gray-400">Analyzing...</p>
+					</div>
+				)}
+
+				{!issues.length && !error && !isLoading && (
 					<div className="flex flex-col justify-center items-center h-full">
 						<p className="text-center"> No analysis yet </p>
 						<p className="text-center"> Enter JSON and click Analyze </p>
 					</div>
 				)}
-				{
-					!issues.length && error && (
+
+				{!issues.length && error && (
 						<div className="flex flex-col justify-center items-center h-full">
 							<div className="flex flex-col items-center gap-3 font-bold">
 								<XCircle className="w-8 h-8 text-[#db2020]" /> {error}!
@@ -98,7 +107,7 @@ function AnalysisPanel() {
 					) /* Displays "Invalid JSON" message */
 				}
 
-				{issues.length > 0 && (
+				{issues.length > 0 && !isLoading && (
 					<>
 						<h1 className="font-bold text-xl"> Analysis </h1>
 
