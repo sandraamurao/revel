@@ -122,22 +122,25 @@ function AnalysisPanel() {
 									<div
 										className={`flex flex-col border ${colorCodes[issue.issue as keyof typeof colorCodes]} rounded-lg p-3 bg-[#1a1f31]`}
 									>
-										<div className="flex flex-row items-center gap-4">
-											{/* Icons */}
-											{issue.issue == "Naming mismatch" ||
-											issue.issue == "Type mismatch" ? (
-												<AlertTriangle className="w-4 h-4 text-yellow-500" />
-											) : (
-												<XCircle className="w-4 h-4 text-[#db2020]" />
-											)}
+										<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+											<div className="flex flex-row items-center gap-4">
+												{/* Icons */}
+												{issue.issue == "Naming mismatch" ||		
+													issue.issue == "Type mismatch" ? (
+														<AlertTriangle className="w-4 h-4 text-yellow-500" />
+													) : (
+														<XCircle className="w-4 h-4 text-[#db2020]" />
+													)}
 
-											{/* Issue.field */}
-											<div className="text-[#5280ff] font-mono">
-												{issue.field}
-											</div>	
+												{/* Issue.field */}
+												<div className="text-[#5280ff] font-mono">
+													{issue.field}
+												</div>	
+											</div>
+											
 
-											{/* Issue meassage */}
-											<div className="bg-[#47536d]/40 pt-[6px] pb-[6px] pr-[10px] pl-[10px] text-[13px] text-[#96a4c2] rounded-lg">
+											{/* Issue type */}
+											<div className="bg-[#47536d]/40 pt-1.5 pb-1.5 pr-2.5 pl-2.5 text-[13px] text-[#96a4c2] rounded-lg">
 												{issue.issue.toLowerCase()}
 											</div>
 										</div>

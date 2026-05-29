@@ -13,39 +13,15 @@ function DiffViewer() {
 	const flatResponse = flattenObject(JSON.parse(responseJson));
 
 	const truth = useApiState((state) => state.sourceOfTruth);
-	const statuses = getStatus(JSON.parse(requestJson), JSON.parse(responseJson));
 	const issues = useApiState((state) => state.issues);
 
 	const rows = buildDataRows(issues, flatRequest, flatResponse, truth);
+	const numMismatches = rows.filter(r => r.status.includes("mismatch")).length
+	const numMissing = rows.filter(r => r.status.includes("missing")).length
+	const numMatches = rows.filter(r => r.status === "match").length
 
 	// prevents rendering and JSON.parse crash before user clicks Analyze:
 	if (!issues.length) return null;
-
-	function getStatus(
-		request: Record<string, unknown>,
-		response: Record<string, unknown>,
-	) {
-		const allKeys = [
-			...new Set([...Object.keys(request), ...Object.keys(response)]),
-		];
-
-		return allKeys.map((k) => {
-			const reqVal = request[k];
-			const resVal = response[k];
-			const inRequest = k in request;
-			const inResponse = k in response;
-
-			let status: string;
-
-			if (!inResponse) status = "missing-response";
-			else if (!inRequest) status = "missing-request";
-			else if (JSON.stringify(reqVal) !== JSON.stringify(resVal))
-				status = "mismatch";
-			else status = "match";
-
-			return { key: k, status };
-		});
-	}
 
 	function setCellStyle(status: string) {
 		if (status === "match" || status === "extra") return "bg-[#379737]/30 border-l-[#12e42e]";
@@ -59,23 +35,22 @@ function DiffViewer() {
 
 	return (
 		<div className="text-sm">
-			<div className="flex flex-row justify-between gap-3 pr-7 pl-7 pt-3 pb-3 outline outline-[#474747] rounded-t-2xl font-mono bg-[#1a1f31]">
+			<div className="flex flex-col sm:flex-row justify-between gap-3 pr-7 pl-7 pt-3 pb-3 outline outline-[#474747] rounded-t-2xl font-mono bg-[#1a1f31]">
 				<div className="flex flex-row gap-4 justify-center items-center">
 					<span className="text-[#928b8b]"><Settings className="w-4 h-4"  /></span>
 					<span className="text-[13px] ">diff</span>
 					<span className="text-[13px] bg-[#c27209]/20 pr-3 pl-3 rounded-2xl border border-[#e0710a]">
-						{statuses.filter((r) => r.status === "mismatch").length} mismatches
+						{numMismatches} <span className="hidden md:inline"> mismatches</span>
 					</span>
 					<span className="text-[13px]  bg-[#eb0c0c]/30 pr-3 pl-3 rounded-2xl border border-[#c93232]">
-						{statuses.filter((r) => r.status.includes("missing")).length}
-						missing
+						{numMissing} <span className="hidden md:inline">missing</span>
 					</span>
 					<span className="text-[13px]  bg-[#11b126]/20 pr-3 pl-3 rounded-2xl border border-[#11b126]">
-						{statuses.filter((r) => r.status === "match").length} matches
+						{numMatches} <span className="hidden md:inline">matches</span>
 					</span>
 				</div>
 
-				<button onClick={() => setIsOpen(!isOpen)}>
+				<button onClick={() => setIsOpen(!isOpen)} className="flex justify-center border border-[#857e7e]/50 p-1.25 rounded-lg hover:bg-[#857e7e]/50">
 					
 					{isOpen ? (
 						<ChevronDown className="w-4 h-4" />
@@ -99,7 +74,7 @@ function DiffViewer() {
 					{rows.map((row, i) => (
 						<div key={i} className={`grid grid-cols-2 font-mono`}>
 							<div
-								className={`border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
+								className={`overflow-hidden border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
 							>
 								<div className="text-[#746f6f]">
 									{i + 1}
@@ -123,17 +98,15 @@ function DiffViewer() {
 										</>
 									)}
 								</div>
-								<div>
-									{row.status === "missing-request" && (
-										<div className="flex flex-row gap-2 ">
-											<div className="border border-dashed border-[#928282] rounded-md w-50  bg-[#928282]/15"></div>
-											<span className="text-[#bbaeae]">missing</span>
-										</div>
-									)}
-								</div>
+								{row.status === "missing-request" && (
+									<div className="flex flex-row gap-2 ">
+										<div className="border border-dashed border-[#928282] rounded-md w-full bg-[#928282]/15"></div>
+										<span className="text-[#bbaeae]">missing</span>
+									</div>
+								)}
 							</div>
 							<div
-								className={`border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
+								className={`overflow-hidden border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
 							>
 								<div className="text-[#746f6f]">
 									{i + 1}
@@ -141,7 +114,7 @@ function DiffViewer() {
 									{"\u00A0"}
 								</div>
 								<div
-									className={`${truth === "Request" && row.status === "missing-request" && "bg-[#d83b3b]"}`}
+									className={`${truth === "Response" && row.status === "missing-request" && "bg-[#d83b3b]"}`}
 								>
 									{row.responseKey && (
 										<>
@@ -159,14 +132,12 @@ function DiffViewer() {
 										</>
 									)}
 								</div>
-								<div>
-									{row.status === "missing-response" && (
-										<div className="flex flex-row gap-2">
-											<div className="border border-dashed border-[#928282] rounded-md w-50 bg-[#928282]/15"></div>
-											<span className="text-[#bbaeae]">missing</span>
-										</div>
-									)}
-								</div>
+								{row.status === "missing-response" && (
+									<div className="flex flex-col md:flex-row gap-2 w-full">
+										<div className="border border-dashed border-[#928282] rounded-md w-full h-6 bg-[#928282]/15"></div>
+										<span className="text-[#bbaeae]">missing</span>
+									</div>
+								)}
 							</div>
 						</div>
 					))}
