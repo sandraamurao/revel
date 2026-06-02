@@ -100,10 +100,9 @@ function AnalysisPanel() {
 
 				{!issues.length && error && (
 						<div className="flex flex-col justify-center items-center h-full">
-							<div className="flex flex-col items-center gap-3 font-bold">
-								<XCircle className="w-8 h-8 text-[#db2020]" /> {error}!
-							</div>
-							<p> Please double check if your inputs are in JSON format!</p>
+								<XCircle className="w-8 h-8 text-[#db2020] mb-2" /> 
+								<p className="font-bold">Invalid JSON!</p>
+							<p className="mt-2"> Please double check your inputs!</p>
 						</div>
 					) /* Displays "Invalid JSON" message */
 				}

@@ -26,6 +26,7 @@ function JsonInput() {
 
 	// set issues and error from api comparisons as states
 	const setIssues = useApiState((state) => state.setIssues);
+	const error = useApiState((state) => state.error);
 	const setError = useApiState((state) => state.setError);
 	const issues = useApiState((state) => state.issues);
 
@@ -35,7 +36,7 @@ function JsonInput() {
 	const apiLabels = ["Request", "Response"]; // for displaying which api input textarea to show
 
 	function handleOnChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-		if (e.target.value === "" && issues.length > 0) {
+		if (issues.length > 0) {
 			setIssues([]);
 			setError("");
 			setAiExplanation("");
@@ -108,37 +109,54 @@ function JsonInput() {
 	}
 
 	async function handleAnalyze() {
+		if (error.length) setError("") // reset previous error (when user re-analyzes due to an error on their previous input)
 		setIsLoading(true);
-		try {
-			const request = JSON.parse(requestJson);
-			const response = JSON.parse(responseJson);
+		let request, response;
+		let errors = [];
+
+		try { request = JSON.parse(requestJson) } 
+		catch (e) { if (e instanceof SyntaxError) errors.push(`Request: ${e.message}\n`) }
+
+		try { response = JSON.parse(responseJson) } 
+		catch (e) { if (e instanceof SyntaxError) errors.push(`Response: ${e.message}\n`) }
+
+		if (errors.length) {
+			console.log(errors)
+			setError(errors.join("\n"))
+			setIsLoading(false)
+			return
+		} else {
 			const flatRequest = flattenObject(request);
 			const flatResponse = flattenObject(response);
 
-			if (
-				typeof request === "object" &&
-				request !== null &&
-				typeof response === "object" &&
-				response !== null
-			) {
-				const issues =
-					sourceOfTruth === "Request"
-						? compareJson(flatRequest, flatResponse, "")
-						: compareJson(flatResponse, flatRequest, "");
-				setIssues(issues);
+			// Save the request and response right when user clicks "Analyze"
+			setAnalyzedRequest(requestJson)
+			setAnalyzedResponse(responseJson)
 
-				const explanation =
-					sourceOfTruth === "Request"
-						? await getAiExplanation(issues, request, response, sourceOfTruth)
-						: await getAiExplanation(issues, response, request, sourceOfTruth);
+			try {
+				if (
+					typeof request === "object" &&
+					request !== null &&
+					typeof response === "object" &&
+					response !== null
+				) {
+					const issues =
+						sourceOfTruth === "Request"
+							? compareJson(flatRequest, flatResponse, "")
+							: compareJson(flatResponse, flatRequest, "");
+					setIssues(issues);
 
-				if (explanation) setAiExplanation(explanation);
-			}
-			return null;
-		} catch (err) {
-			setError("Invalid JSON");
-		} finally {
-			setIsLoading(false)
+					const explanation =
+						sourceOfTruth === "Request"
+							? await getAiExplanation(issues, request, response, sourceOfTruth)
+							: await getAiExplanation(issues, response, request, sourceOfTruth);
+
+					if (explanation) setAiExplanation(explanation);
+				}
+			} catch (e) { 
+				console.log(e) 
+				setError(`Error on getting an AI explanation: ${e}`) 
+			} finally { setIsLoading(false) }
 		}
 	}
 
@@ -187,12 +205,20 @@ function JsonInput() {
 						onChange={handleOnChange}
 						name={sourceOfTruth}
 						placeholder='{ "userId": 123, "data": {...} }'
-						className="font-mono w-full h-full min-h-[450px] p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
+						className="font-mono w-full h-full min-h-112.5 p-3 border border-[#474747] focus:border-blue-500 outline-none rounded-2xl resize-none"
 						value={activeTextArea === "Request" ? requestJson : responseJson}
 					>
 					</textarea>
 				</div>
 				
+				{/* Display Error message */}
+				{error && (
+					<div className=" mb-4 text-red-500"> 
+						{error.split('\n').map((e, i) => ( 
+							<p key={i}>{e}</p>	
+						))}
+ 					</div>
+				)}
 
 				<div>
 					<div className="relative inline-flex items-start">
