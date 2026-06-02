@@ -21,6 +21,8 @@ function JsonInput() {
 	const setResponse = useApiState((state) => state.setResponse);
 	const requestJson = useApiState((state) => state.requestJson);
 	const responseJson = useApiState((state) => state.responseJson);
+	const setAnalyzedRequest = useApiState((state) => state.setAnalyzedRequest);
+	const setAnalyzedResponse = useApiState((state) => state.setAnalyzedResponse);
 
 	// set issues and error from api comparisons as states
 	const setIssues = useApiState((state) => state.setIssues);
@@ -47,10 +49,10 @@ function JsonInput() {
 	}
 
 	function clearAllTextArea() {
-			setRequest("");
-			setResponse("");
-			setIssues([]);
-			setAiExplanation("");
+		setRequest("");
+		setResponse("");
+		setIssues([]);
+		setAiExplanation("");
 	}
 	
 	function clearActiveTextArea() {

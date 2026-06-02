@@ -7,10 +7,10 @@ import { flattenObject } from "../utils/flattenObject";
 function DiffViewer() {
 	const [isOpen, setIsOpen] = useState(true);
 
-	const requestJson = useApiState((state) => state.requestJson);
-	const responseJson = useApiState((state) => state.responseJson);
-	const flatRequest = flattenObject(JSON.parse(requestJson));
-	const flatResponse = flattenObject(JSON.parse(responseJson));
+	const analyzedRequest = useApiState((state) => state.analyzedRequest);
+	const analyzedResponse = useApiState((state) => state.analyzedResponse);
+	const flatRequest = flattenObject(JSON.parse(analyzedRequest));
+	const flatResponse = flattenObject(JSON.parse(analyzedResponse));
 
 	const truth = useApiState((state) => state.sourceOfTruth);
 	const issues = useApiState((state) => state.issues);

@@ -11,11 +11,11 @@ function AnalysisPanel() {
 	const sourceOfTruth = useApiState((state) => state.sourceOfTruth);
 	const isLoading = useApiState((state) => state.isLoading)
 
-	const requestJson = useApiState((state) => state.requestJson);
-	const responseJson = useApiState((state) => state.responseJson);
+	const analyzedRequest = useApiState((state) => state.analyzedRequest);
+	const analyzedResponse = useApiState((state) => state.analyzedResponse);
 	const flatRequest = (() => {
 		try {
-			return flattenObject(JSON.parse(requestJson));
+			return flattenObject(JSON.parse(analyzedRequest));
 		} catch {
 			return {};
 		}
@@ -23,7 +23,7 @@ function AnalysisPanel() {
 
 	const flatResponse = (() => {
 		try {
-			return flattenObject(JSON.parse(responseJson));
+			return flattenObject(JSON.parse(analyzedResponse));
 		} catch {
 			return {};
 		}
@@ -92,8 +92,9 @@ function AnalysisPanel() {
 
 				{!issues.length && !error && !isLoading && (
 					<div className="flex flex-col justify-center items-center h-full">
+						<AlertTriangle className="w-8 h-8 text-yellow-500" />
 						<p className="text-center"> No analysis yet </p>
-						<p className="text-center"> Enter JSON and click Analyze </p>
+						<p className="text-center"> Enter API JSON and click Analyze </p>
 					</div>
 				)}
 
