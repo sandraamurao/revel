@@ -121,7 +121,6 @@ function JsonInput() {
 		catch (e) { if (e instanceof SyntaxError) errors.push(`Response: ${e.message}\n`) }
 
 		if (errors.length) {
-			console.log(errors)
 			setError(errors.join("\n"))
 			setIsLoading(false)
 			return
@@ -154,7 +153,6 @@ function JsonInput() {
 					if (explanation) setAiExplanation(explanation);
 				}
 			} catch (e) { 
-				console.log(e) 
 				setError(`Error on getting an AI explanation: ${e}`) 
 			} finally { setIsLoading(false) }
 		}
