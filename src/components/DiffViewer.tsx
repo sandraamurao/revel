@@ -4,13 +4,29 @@ import { ChevronDown, ChevronUp, Settings } from "lucide-react";
 import { buildDataRows } from "../utils/buildDataRows";
 import { flattenObject } from "../utils/flattenObject";
 
+const safeFlatten = (json: string) => {
+  try { return flattenObject(JSON.parse(json)) }
+  catch { return {} }
+}
+
+function setCellStyle(status: string) {
+	if (status === "match" || status === "extra") return "bg-[#379737]/30 border-l-[#12e42e]";
+
+	if (status === "naming-mismatch" || status === "type-mismatch")
+		return "bg-[#9b2b2b]/30 border-l-[#ce1010]";
+	
+	if (status.includes("missing"))
+		return "border-l-[#ce1010]";
+}
+
 function DiffViewer() {
 	const [isOpen, setIsOpen] = useState(true);
 
 	const analyzedRequest = useApiState((state) => state.analyzedRequest);
 	const analyzedResponse = useApiState((state) => state.analyzedResponse);
-	const flatRequest = flattenObject(JSON.parse(analyzedRequest));
-	const flatResponse = flattenObject(JSON.parse(analyzedResponse));
+	
+	const flatRequest = safeFlatten(analyzedRequest)
+	const flatResponse = safeFlatten(analyzedResponse)
 
 	const truth = useApiState((state) => state.sourceOfTruth);
 	const issues = useApiState((state) => state.issues);
@@ -22,16 +38,6 @@ function DiffViewer() {
 
 	// prevents rendering and JSON.parse crash before user clicks Analyze:
 	if (!issues.length) return null;
-
-	function setCellStyle(status: string) {
-		if (status === "match" || status === "extra") return "bg-[#379737]/30 border-l-[#12e42e]";
-
-		if (status === "naming-mismatch" || status === "type-mismatch")
-			return "bg-[#9b2b2b]/30 border-l-[#ce1010]";
-		
-		if (status.includes("missing"))
-			return "border-l-[#ce1010]";
-	}
 
 	return (
 		<div className="text-sm">
@@ -72,15 +78,16 @@ function DiffViewer() {
 			{isOpen && (
 				<div>
 					{rows.map((row, i) => (
-						<div key={i} className={`grid grid-cols-2 font-mono`}>
+						<div key={i} className="grid grid-cols-2 font-mono">
 							<div
-								className={`overflow-hidden border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
+								className={`overflow-hidden border-l-2 border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
 							>
 								<div className="text-[#746f6f]">
 									{i + 1}
 									{"\u00A0"}
 									{"\u00A0"}
 								</div>
+								
 								<div>
 									{row.requestKey && (
 										<>
@@ -98,6 +105,7 @@ function DiffViewer() {
 										</>
 									)}
 								</div>
+
 								{row.status === "missing-request" && (
 									<div className="flex flex-row gap-2 ">
 										<div className="border border-dashed border-[#928282] rounded-md w-full bg-[#928282]/15"></div>
@@ -105,14 +113,13 @@ function DiffViewer() {
 									</div>
 								)}
 							</div>
+
 							<div
-								className={`overflow-hidden border-l-[2px] border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
+								className={`overflow-hidden border-l-2 border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
 							>
-								<div className="text-[#746f6f]">
+								<span className="text-[#746f6f] pr-4">
 									{i + 1}
-									{"\u00A0"}
-									{"\u00A0"}
-								</div>
+								</span>
 								<div
 									className={`${truth === "Response" && row.status === "missing-request" && "bg-[#d83b3b]"}`}
 								>
@@ -132,6 +139,7 @@ function DiffViewer() {
 										</>
 									)}
 								</div>
+
 								{row.status === "missing-response" && (
 									<div className="flex flex-col md:flex-row gap-2 w-full">
 										<div className="border border-dashed border-[#928282] rounded-md w-full h-6 bg-[#928282]/15"></div>
