@@ -3,20 +3,11 @@ import { useApiState } from "../store/useStore";
 import { ChevronDown, ChevronUp, Settings } from "lucide-react";
 import { buildDataRows } from "../utils/buildDataRows";
 import { flattenObject } from "../utils/flattenObject";
+import { DiffCell } from "./DiffCell";
 
 const safeFlatten = (json: string) => {
   try { return flattenObject(JSON.parse(json)) }
   catch { return {} }
-}
-
-function setCellStyle(status: string) {
-	if (status === "match" || status === "extra") return "bg-[#379737]/30 border-l-[#12e42e]";
-
-	if (status === "naming-mismatch" || status === "type-mismatch")
-		return "bg-[#9b2b2b]/30 border-l-[#ce1010]";
-	
-	if (status.includes("missing"))
-		return "border-l-[#ce1010]";
 }
 
 function DiffViewer() {
@@ -79,76 +70,10 @@ function DiffViewer() {
 				<div>
 					{rows.map((row, i) => (
 						<div key={i} className="grid grid-cols-2 font-mono">
-							<div
-								className={`overflow-hidden border-l-2 border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Request" && row.status === "missing-response" && "bg-[#9b2b2b]/30"}`}
-							>
-								<div className="text-[#746f6f]">
-									{i + 1}
-									{"\u00A0"}
-									{"\u00A0"}
-								</div>
-								
-								<div>
-									{row.requestKey && (
-										<>
-											<span
-												className={`${row.status === "naming-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
-											>
-												{row.requestKey}
-											</span>
-											:&nbsp;
-											<span
-												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
-											>
-												{JSON.stringify(row.requestValue)}
-											</span>
-										</>
-									)}
-								</div>
-
-								{row.status === "missing-request" && (
-									<div className="flex flex-row gap-2 ">
-										<div className="border border-dashed border-[#928282] rounded-md w-full bg-[#928282]/15"></div>
-										<span className="text-[#bbaeae]">missing</span>
-									</div>
-								)}
-							</div>
-
-							<div
-								className={`overflow-hidden border-l-2 border-b-[0.5px] border-b-[#474747] ${setCellStyle(row.status)} p-2 flex flex-row ${truth === "Response" && row.status === "missing-request" && "bg-[#9b2b2b]/40"}`}
-							>
-								<span className="text-[#746f6f] pr-4">
-									{i + 1}
-								</span>
-								<div
-									className={`${truth === "Response" && row.status === "missing-request" && "bg-[#d83b3b]"}`}
-								>
-									{row.responseKey && (
-										<>
-											<span
-												className={`${row.status === "naming-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
-											>
-												{row.responseKey}
-											</span>
-											:&nbsp;
-											<span
-												className={`${row.status === "type-mismatch" ? "underline decoration-[#db1111] decoration-2 underline-offset-4" : ""}`}
-											>
-												{JSON.stringify(row.responseValue)}
-											</span>
-										</>
-									)}
-								</div>
-
-								{row.status === "missing-response" && (
-									<div className="flex flex-col md:flex-row gap-2 w-full">
-										<div className="border border-dashed border-[#928282] rounded-md w-full h-6 bg-[#928282]/15"></div>
-										<span className="text-[#bbaeae]">missing</span>
-									</div>
-								)}
-							</div>
+							<DiffCell lineNumber={i + 1} fieldKey={row.requestKey} value={row.requestValue} status={row.status} side="request" truth={truth} />
+							<DiffCell lineNumber={i + 1} fieldKey={row.responseKey} value={row.responseValue} status={row.status} side="response" truth={truth} />
 						</div>
-					))}
+						))}
 				</div>
 			)}
 		</div>
