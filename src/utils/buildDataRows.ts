@@ -75,6 +75,18 @@ export function buildDataRows(
 				responseValue: isReqTruth ? null : flatResponse[key],
 				status: isReqTruth ? "missing-response" : "missing-request",
 			};
+		
+		// Fallback
+		/* TypeScript requires all code paths to return a value.
+			All issue types are handled above, but TypeScript can't verify that at compile time.
+		 	This fallback prevents a "not all code paths return a value" error. */
+		return {
+			requestKey: key,
+			responseKey: key,
+			requestValue: flatRequest[key],
+			responseValue: flatResponse[key],
+			status: "match" as DataMapRow["status"]
+		}
 	});
 
     return rows;
