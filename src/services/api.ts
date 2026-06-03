@@ -3,7 +3,7 @@ import type { Issue } from "../utils/compareJson";
 export async function getAiExplanation(issues: Issue[], expectedApiInput: Record<string, unknown>, actualApiInput: Record<string, unknown>, sourceOfTruth: string) {
 	try {
 		const response = await fetch(
-			"http://localhost:3000/analyze ", 
+			 `${import.meta.env.VITE_API_URL}/analyze`, 
 			{
 				method: "POST",
 				headers: {
